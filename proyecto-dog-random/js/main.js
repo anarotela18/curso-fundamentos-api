@@ -8,6 +8,8 @@ const API_URL_FAVORITES = "https://api.thedogapi.com/v1/favourites?&order=DESC";
 const API_URL_FAVORITES_DELETE = (id) =>
   `https://api.thedogapi.com/v1/favourites/${id}?`;
 
+const API_URL_UPLOAD = "https://api.thedogapi.com/v1/images/upload";
+
 function showMessage(type, text) {
   const messageDiv = document.getElementById("message");
   if (!messageDiv) {
@@ -173,5 +175,44 @@ async function deleteFavoriteDog(id) {
   }
 }
 
+async function uploadDogPhoto() {
+  const form = document.getElementById("uploadingForm");
+  const formData = new FormData(form);
+  const file = formData.get("file");
+
+  if (!file || file.size === 0) {
+    showMessage("danger", "Please select a file before uploading");
+    return;
+  }
+
+  const button = document.querySelector("#uploadingForm button");
+  button.disabled = true;
+  button.innerHTML = '<i class="bi bi-upload"> Uploading ...</i>';
+
+  try {
+    const response = await fetch(API_URL_UPLOAD, {
+      method: "POST",
+      headers: { "X-API-KEY": API_KEY },
+      body: formData,
+    });
+    if (!response.ok) {
+      const text = await response.text();
+      const errorMessage = `There was an error in upload: ${response.status} - ${text}`;
+      showMessage("danger", errorMessage);
+      return;
+    }
+    const data = await response.json();
+    showMessage("success", "Successfully uploaded dog photo");
+    console.log("Uploaded image info: ", data);
+    console.log(data.url); // https://cdn2.thedogapi.com/images/bHyWzkvt_.jpg
+    saveFavoriteDog(data.id);
+    form.reset();
+  } catch (error) {
+    showMessage("danger", `Unexpected error during upload: ${error}`);
+  }finally {
+    button.disabled = false;
+    button.innerHTML = '<i class="bi bi-upload"> Upload photo</i>';
+  }
+}
 loadRandomDogs();
 loadFavoriteDogs();

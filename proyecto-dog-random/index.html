@@ -23,14 +23,14 @@
                     <article>
                         <img id="dogImage1" src="" alt="random dog image" class="img-fluid rounded shadow mb-2">
                         <p id="dogBreed1" class="text-body-secondary text-center"></p>
-                        <button id="dogButtonRandom1" class="btn btn-outline-primary w-100">Save dog to favorites</button>
+                        <button id="dogButtonRandom1" class="btn btn-outline-primary w-100"><i class="bi bi-save"> </i>Save dog to favorites</button>
                     </article>
                 </div>
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
                     <article>
                         <img id="dogImage2" src="" alt="random dog image" class="img-fluid rounded shadow mb-2">
                         <p id="dogBreed2" class="text-body-secondary text-center"></p>
-                        <button id="dogButtonRandom2" class="btn btn-outline-primary w-100">Save dog to favorites</button>
+                        <button id="dogButtonRandom2" class="btn btn-outline-primary w-100"><i class="bi bi-save"></i> Save dog to favorites</button>
                     </article>
                 </div>
             </div>
@@ -40,6 +40,28 @@
                        <i class="bi bi-arrow-clockwise"></i>  Click to see another dog!
                     </button>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container my-4">
+        <div class="row">
+            <div class="col-12 col-md-9 mx-auto">
+                <h2 class="text-center">Upload your dog's photo</h2>
+                <form id="uploadingForm">
+                    <div class="row">
+                        <div class="col-12 col-xl-8">
+                            <input id="fileDogPhoto" type="file" name="file" class="form-control" accept="image/*">
+                        </div>
+                        <div class="col-12 col-xl-4">
+                            <button type="button" onclick="uploadDogPhoto()" class="btn btn-outline-warning">
+                                <i class="bi bi-upload"></i> 
+                                Upload photo
+                            </button>
+                            
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </section>
