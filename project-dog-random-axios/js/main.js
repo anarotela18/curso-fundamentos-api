@@ -1,5 +1,3 @@
-const API_KEY = "live_kQ8qbO0k5JISXH0gFhPDxyAanhQNOZ83UTVgYycOxf2WA0GDdWqunpc48zUsZ74d";
-
 const API_URL_RANDOM = "https://api.thedogapi.com/v1/images/search?limit=2";
 
 const API_URL_FAVORITES = "https://api.thedogapi.com/v1/favourites?&order=DESC";
@@ -127,45 +125,53 @@ async function loadFavoriteDogs() {
 }
 async function saveFavoriteDog(id) {
   try {
-    const response = await fetch(API_URL_FAVORITES, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-API-KEY": API_KEY,
-      },
-      body: JSON.stringify({
-        image_id: id,
-      }),
-    });
+    const response = await axios.post(
+      API_URL_FAVORITES,
+      { image_id: id },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-KEY": API_KEY,
+        },
+      }
+    );
 
-    if (!response.ok) {
-      const text = await response.text();
-      let errorMessage = `There was an error in save: ${response.status} - ${text}`;
-      showMessage("danger", errorMessage);
-      return;
-    }
     showMessage("success", "Dog added to favorites");
     loadFavoriteDogs();
+
   } catch (error) {
-    showMessage("danger", "An unexpected error ocurred on saveFavoriteDog");
+    if(error.response){
+      const message = 
+        error.response.data?.message ||
+        error.response.data?.error?.message ||
+        JSON.stringify(error.response.data);
+        const errorMessage = `There was an error in save: ${error.response.status} - ${message}`;
+        showMessage("danger",errorMessage);
+    }else{
+      showMessage("danger",`An unexpected error ocurred on saveFavoriteDog: ${error.message}`);
+    }
   }
 }
 async function deleteFavoriteDog(id){
   try {
-    const response = await fetch(API_URL_FAVORITES_DELETE(id), {
-      method: "DELETE",
+    const response = await axios.delete(API_URL_FAVORITES_DELETE(id), 
+    {
       headers: { "X-API-KEY": API_KEY },
     });
-    if (!response.ok) {
-      const text = await response.text();
-      const errorMessage = `There was an error in delete: ${response.status} - ${text}`;
-      showMessage("danger", errorMessage);
-      return;
-    }
     showMessage("success", "Dog removed from favorites");
     loadFavoriteDogs();
   } catch (error) {
-    showMessage("danger", "An unexpected error ocurred on deleteFavoriteDog");
+    console.log("Full response: ", error.response?.data);
+    if(error.response){
+      const message = 
+        error.response.data?.message ||
+        error.response.data?.error?.message ||
+        JSON.stringify(error.response.data);
+        const errorMessage = `There was an error in delete: ${error.response.status} - ${message}`;
+        showMessage("danger", errorMessage);
+    }else{
+      showMessage("danger", `An unexpected error ocurred on deleteFavoriteDog , ${error.message}`);
+    }
   }
 }
 async function uploadDogPhoto() {
@@ -183,25 +189,27 @@ async function uploadDogPhoto() {
   button.innerHTML = '<i class="bi bi-upload"> Uploading ...</i>';
 
   try {
-    const response = await fetch(API_URL_UPLOAD, {
-      method: "POST",
-      headers: { "X-API-KEY": API_KEY },
-      body: formData,
+    const response = await axios.post(API_URL_UPLOAD, formData, 
+    {
+      headers: { "X-API-KEY": API_KEY }
     });
-    if (!response.ok) {
-      const text = await response.text();
-      const errorMessage = `There was an error in upload: ${response.status} - ${text}`;
-      showMessage("danger", errorMessage);
-      return;
-    }
-    const data = await response.json();
+    const data = response.data;
     showMessage("success", "Successfully uploaded dog photo");
     console.log("Uploaded image info: ", data);
     console.log(data.url); // https://cdn2.thedogapi.com/images/bHyWzkvt_.jpg
     saveFavoriteDog(data.id);
     form.reset();
   } catch (error) {
-    showMessage("danger", `Unexpected error during upload: ${error}`);
+    if(error.response){
+      const message = 
+      error.response.data?.message ||
+      error.response.data?.error.message ||
+      JSON.stringify(error.response.data);
+      const errorMessage = `There was an error in upload: ${error.response.status} - ${message}`;
+      showMessage("danger", errorMessage);
+    }else{
+      showMessage("danger", `Unexpected error during upload: ${error.message}`);
+    }
   } finally {
     button.disabled = false;
     button.innerHTML = '<i class="bi bi-upload"> Upload photo</i>';
